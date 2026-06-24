@@ -13,12 +13,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+import os
+
 def get_conn():
     return psycopg2.connect(
-        host="localhost",
-        database="api_monitor",
-        user="monitor_user",
-        password="monitor_pass123"
+        host=os.environ.get("DB_HOST", "localhost"),
+        database=os.environ.get("DB_NAME", "api_monitor"),
+        user=os.environ.get("DB_USER", "monitor_user"),
+        password=os.environ.get("DB_PASSWORD", "monitor_pass123")
     )
 
 @app.get("/api/endpoints/status")
