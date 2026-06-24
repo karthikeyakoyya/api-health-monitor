@@ -1,4 +1,4 @@
-<img width="1911" height="925" alt="image" src="https://github.com/user-attachments/assets/fd60ce87-8e34-4cea-a213-a3817244cb77" /># ⚡ Real-Time API Health Monitoring System
+# ⚡ Real-Time API Health Monitoring System
 
 > A production-grade observability platform that monitors live APIs in real-time, detects anomalies, and displays metrics on a live dashboard — built with Java, Kafka, Python, PostgreSQL, and React.
 
@@ -8,7 +8,8 @@
 ---
 
 ## 📸 Dashboard Preview
-![Uploading image.png…]()
+<img width="1904" height="931" alt="image" src="https://github.com/user-attachments/assets/33ffac41-8d6b-45ce-8341-a114d922a6c3" />
+
 
 
 ![API Health Monitor Dashboard](https://api-health-monitor-dashboard.onrender.com)
