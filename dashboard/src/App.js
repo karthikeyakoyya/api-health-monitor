@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
-const API = "http://localhost:8000";
+const API = "https://api-health-monitor-backend-wodm.onrender.com";
 
 const SEVERITY_COLORS = {
   CRITICAL: "#ef4444",
