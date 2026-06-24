@@ -11,11 +11,6 @@
 <img width="1904" height="931" alt="image" src="https://github.com/user-attachments/assets/33ffac41-8d6b-45ce-8341-a114d922a6c3" />
 
 
-
-![API Health Monitor Dashboard](https://api-health-monitor-dashboard.onrender.com)
-
----
-
 ## 🏗️ System Architecture
 
 ```
