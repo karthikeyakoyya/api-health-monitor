@@ -16,6 +16,9 @@ app.add_middleware(
 import os
 
 def get_conn():
+    database_url = os.environ.get("DATABASE_URL")
+    if database_url:
+        return psycopg2.connect(database_url, sslmode='require')
     return psycopg2.connect(
         host=os.environ.get("DB_HOST", "localhost"),
         database=os.environ.get("DB_NAME", "api_monitor"),
