@@ -2,13 +2,16 @@
 
 > A production-grade observability platform that monitors live APIs in real-time, detects anomalies, and displays metrics on a live dashboard — built with Java, Kafka, Python, PostgreSQL, and React.
 
-🔗 **Live Demo:** https://api-health-monitor-dashboard.onrender.com  
-💻 **Backend API:** https://api-health-monitor-backend-wodm.onrender.com/api/endpoints/status
+Live Demo: Not currently hosted — see "Full Stack via Docker Compose" below to run it locally in \~2 minutes (`docker-compose up --build`, then open http://localhost:3000).
 
----
+
+
+\---
 
 ## 📸 Dashboard Preview
+
 <img width="1904" height="931" alt="image" src="https://github.com/user-attachments/assets/33ffac41-8d6b-45ce-8341-a114d922a6c3" />
+
 
 
 ## 🏗️ System Architecture
@@ -28,33 +31,33 @@
 └─────────────────┘     └─────────────┘     └──────────────────┘
 ```
 
----
+\---
 
 ## 🚀 Features
 
-- ✅ **Real-time API monitoring** — pings 5 live APIs every 10 seconds
-- ✅ **Kafka event streaming** — metrics flow through a distributed message queue
-- ✅ **Anomaly detection** — automatic detection of downtime, slow responses, high latency
-- ✅ **Severity alerts** — CRITICAL / HIGH / MEDIUM / LOW classification
-- ✅ **Live dashboard** — React frontend updates every 5 seconds
-- ✅ **Response time charts** — historical performance graphs per endpoint
-- ✅ **Cloud deployed** — fully live on Render (backend + frontend + database)
+* ✅ **Real-time API monitoring** — pings 5 live APIs every 10 seconds
+* ✅ **Kafka event streaming** — metrics flow through a distributed message queue
+* ✅ **Anomaly detection** — automatic detection of downtime, slow responses, high latency
+* ✅ **Severity alerts** — CRITICAL / HIGH / MEDIUM / LOW classification
+* ✅ **Live dashboard** — React frontend updates every 5 seconds
+* ✅ **Response time charts** — historical performance graphs per endpoint
+* ✅ **Cloud deployed** — fully live on Render (backend + frontend + database)
 
----
+\---
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| API Pinger | Java 17, Spring Boot 3.x, Maven |
-| Message Queue | Apache Kafka, Zookeeper (Docker) |
-| Anomaly Detector | Python 3, kafka-python |
-| Backend API | Python FastAPI, Uvicorn |
-| Database | PostgreSQL 16 |
-| Frontend | React.js, Recharts |
-| Deployment | Render (Backend + DB + Frontend) |
+|Layer|Technology|
+|-|-|
+|API Pinger|Java 17, Spring Boot 3.x, Maven|
+|Message Queue|Apache Kafka, Zookeeper (Docker)|
+|Anomaly Detector|Python 3, kafka-python|
+|Backend API|Python FastAPI, Uvicorn|
+|Database|PostgreSQL 16|
+|Frontend|React.js, Recharts|
+|Deployment|Render (Backend + DB + Frontend)|
 
----
+\---
 
 ## 📁 Project Structure
 
@@ -73,7 +76,7 @@ api-health-monitor/
 │
 ├── python-detector/      # Kafka consumer + FastAPI backend
 │   ├── consumer.py       # Anomaly detection engine
-│   ├── api_server.py     # REST API server
+│   ├── api\_server.py     # REST API server
 │   └── requirements.txt
 │
 ├── dashboard/            # React frontend
@@ -83,7 +86,7 @@ api-health-monitor/
 └── docker-compose.yml    # Kafka + Zookeeper setup
 ```
 
----
+\---
 
 ## ⚙️ How It Works
 
@@ -92,72 +95,79 @@ api-health-monitor/
 3. **FastAPI Backend** exposes REST endpoints that query PostgreSQL for live data
 4. **React Dashboard** polls the backend every 5 seconds and displays real-time status, charts, and alerts
 
----
+\---
 
 ## 🔍 Anomaly Detection Rules
 
-| Rule | Condition | Severity |
-|------|-----------|----------|
-| Downtime | HTTP status 0 (connection failed) | CRITICAL |
-| Slow Response | Response time > 2000ms | HIGH |
-| High Avg Latency | Average of last 5 checks > 1500ms | MEDIUM |
+|Rule|Condition|Severity|
+|-|-|-|
+|Downtime|HTTP status 0 (connection failed)|CRITICAL|
+|Slow Response|Response time > 2000ms|HIGH|
+|High Avg Latency|Average of last 5 checks > 1500ms|MEDIUM|
 
----
+\---
 
 ## 🌐 APIs Being Monitored
 
-| API | URL |
-|-----|-----|
-| GitHub API | https://api.github.com |
-| JSONPlaceholder | https://jsonplaceholder.typicode.com/posts/1 |
-| httpbin GET | https://httpbin.org/get |
-| Open Meteo Weather | https://api.open-meteo.com |
-| CoinGecko Ping | https://api.coingecko.com/api/v3/ping |
+|API|URL|
+|-|-|
+|GitHub API|https://api.github.com|
+|JSONPlaceholder|https://jsonplaceholder.typicode.com/posts/1|
+|httpbin GET|https://httpbin.org/get|
+|Open Meteo Weather|https://api.open-meteo.com|
+|CoinGecko Ping|https://api.coingecko.com/api/v3/ping|
 
----
+\---
 
 ## 🖥️ Running Locally
 
 ### Prerequisites
-- Java 17+
-- Maven 3.9+
-- Python 3.10+
-- Docker Desktop
-- PostgreSQL 16+
-- Node.js 18+
 
-### 1. Start Kafka
+* Java 17+
+* Maven 3.9+
+* Python 3.10+
+* Docker Desktop
+* PostgreSQL 16+
+* Node.js 18+
+
+### 1\. Start Kafka
+
 ```bash
 docker-compose up -d
 ```
 
-### 2. Setup PostgreSQL
+### 2\. Setup PostgreSQL
+
 ```sql
-CREATE DATABASE api_monitor;
-CREATE USER monitor_user WITH PASSWORD 'monitor_pass123';
-GRANT ALL PRIVILEGES ON DATABASE api_monitor TO monitor_user;
+CREATE DATABASE api\_monitor;
+CREATE USER monitor\_user WITH PASSWORD 'monitor\_pass123';
+GRANT ALL PRIVILEGES ON DATABASE api\_monitor TO monitor\_user;
 ```
 
-### 3. Start Java Pinger
+### 3\. Start Java Pinger
+
 ```bash
 cd java-pinger
 mvn spring-boot:run
 ```
 
-### 4. Start Python Consumer
+### 4\. Start Python Consumer
+
 ```bash
 cd python-detector
 pip install -r requirements.txt
 python consumer.py
 ```
 
-### 5. Start FastAPI Backend
+### 5\. Start FastAPI Backend
+
 ```bash
 cd python-detector
-uvicorn api_server:app --port 8000
+uvicorn api\_server:app --port 8000
 ```
 
-### 6. Start React Dashboard
+### 6\. Start React Dashboard
+
 ```bash
 cd dashboard
 npm install
@@ -166,30 +176,30 @@ npm start
 
 Open http://localhost:3000
 
----
+\---
 
 ## 🌍 Deployment
 
-| Service | Platform | URL |
-|---------|----------|-----|
-| React Dashboard | Render (Static) | https://api-health-monitor-dashboard.onrender.com |
-| FastAPI Backend | Render (Web Service) | https://api-health-monitor-backend-wodm.onrender.com |
-| PostgreSQL | Render (Database) | Render Cloud |
+|Service|Platform|URL|
+|-|-|-|
+|React Dashboard|Render (Static)|https://api-health-monitor-dashboard.onrender.com|
+|FastAPI Backend|Render (Web Service)|https://api-health-monitor-backend-wodm.onrender.com|
+|PostgreSQL|Render (Database)|Render Cloud|
 
----
+\---
 
 ## 📊 API Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/endpoints/status` | Get live status of all APIs |
-| GET | `/api/endpoints/{id}/history` | Get response time history |
-| GET | `/api/anomalies` | Get recent anomalies |
-| GET | `/healthz` | Liveness/readiness probe |
-| GET | `/metrics` | Prometheus metrics (FastAPI backend) |
-| GET | `/actuator/prometheus` | Prometheus metrics (Java pinger) |
+|Method|Endpoint|Description|
+|-|-|-|
+|GET|`/api/endpoints/status`|Get live status of all APIs|
+|GET|`/api/endpoints/{id}/history`|Get response time history|
+|GET|`/api/anomalies`|Get recent anomalies|
+|GET|`/healthz`|Liveness/readiness probe|
+|GET|`/metrics`|Prometheus metrics (FastAPI backend)|
+|GET|`/actuator/prometheus`|Prometheus metrics (Java pinger)|
 
----
+\---
 
 ## 🐳 Full Stack via Docker Compose
 
@@ -199,24 +209,24 @@ The original `docker-compose.yml` only stood up Kafka + Zookeeper. It now runs t
 docker-compose up --build
 ```
 
-| Service | URL |
-|---------|-----|
-| React Dashboard | http://localhost:3000 |
-| FastAPI Backend | http://localhost:8000 |
-| Java Pinger (actuator) | http://localhost:8080/actuator/health |
-| Prometheus | http://localhost:9090 |
-| Grafana (admin/admin) | http://localhost:3001 |
+|Service|URL|
+|-|-|
+|React Dashboard|http://localhost:3000|
+|FastAPI Backend|http://localhost:8000|
+|Java Pinger (actuator)|http://localhost:8080/actuator/health|
+|Prometheus|http://localhost:9090|
+|Grafana (admin/admin)|http://localhost:3001|
 
 Grafana auto-provisions the Prometheus datasource and a pre-built **API Health Monitor** dashboard (request rates, Kafka consumption rate, anomaly counts by severity, JVM heap, p95 latency) — no manual setup required.
 
----
+\---
 
 ## ☸️ Kubernetes Deployment
 
 Manifests live in `k8s/` (one namespace, `Deployment` + `Service` per component, a `PersistentVolumeClaim` for Postgres, and `ConfigMap`/`Secret`-based config — no hardcoded credentials in the pod specs).
 
 ```bash
-# Build images locally (or push to a registry and update the image refs in k8s/*.yaml)
+# Build images locally (or push to a registry and update the image refs in k8s/\*.yaml)
 docker build -t api-health-monitor/java-pinger:latest ./java-pinger
 docker build -t api-health-monitor/python-detector:latest ./python-detector
 docker build -t api-health-monitor/dashboard:latest ./dashboard
@@ -232,20 +242,20 @@ Each service ships with readiness/liveness probes (`/actuator/health` for the pi
 
 To reach the dashboard locally: `kubectl -n api-health-monitor port-forward svc/dashboard 3000:80`.
 
----
+\---
 
 ## 📈 Observability
 
-| Component | What it exposes | Scraped by |
-|-----------|------------------|------------|
-| `java-pinger` | Spring Boot Actuator + Micrometer → `/actuator/prometheus` (request rates, JVM heap, GC) | Prometheus |
-| `python-api` | `prometheus-fastapi-instrumentator` → `/metrics` (request rate, latency histograms, status codes) | Prometheus |
-| `python-consumer` | `prometheus_client` → `/metrics` on port 8001 (Kafka messages consumed, anomalies detected by severity) | Prometheus |
+|Component|What it exposes|Scraped by|
+|-|-|-|
+|`java-pinger`|Spring Boot Actuator + Micrometer → `/actuator/prometheus` (request rates, JVM heap, GC)|Prometheus|
+|`python-api`|`prometheus-fastapi-instrumentator` → `/metrics` (request rate, latency histograms, status codes)|Prometheus|
+|`python-consumer`|`prometheus\_client` → `/metrics` on port 8001 (Kafka messages consumed, anomalies detected by severity)|Prometheus|
 
 Prometheus config: `monitoring/prometheus/prometheus.yml` (Compose) / `k8s/08-prometheus.yaml` (Kubernetes ConfigMap) — same three scrape targets in both.
 Grafana dashboard source: `monitoring/grafana/dashboards/api-health-monitor.json`.
 
----
+\---
 
 ## 👨‍💻 Author
 
@@ -253,8 +263,9 @@ Grafana dashboard source: `monitoring/grafana/dashboards/api-health-monitor.json
 B.Tech CSE — NIT Durgapur  
 GitHub: [@karthikeyakoyya](https://github.com/karthikeyakoyya)
 
----
+\---
 
 ## 📄 License
 
 MIT License — feel free to use and modify!
+
