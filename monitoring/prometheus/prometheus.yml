@@ -1,0 +1,20 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+
+  - job_name: 'java-pinger'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['java-pinger:8080']
+
+  - job_name: 'python-api'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['python-api:8000']
+
+  - job_name: 'python-consumer'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['python-consumer:8001']

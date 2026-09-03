@@ -1,0 +1,83 @@
+{
+  "title": "API Health Monitor",
+  "uid": "api-health-monitor",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Pinger HTTP Request Rate (java-pinger)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{job=\"java-pinger\"}[1m])) by (uri, status)",
+          "legendFormat": "{{uri}} [{{status}}]"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Backend API Request Rate (python-api)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total{job=\"python-api\"}[1m])) by (handler, status)",
+          "legendFormat": "{{handler}} [{{status}}]"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Kafka Messages Consumed (rate)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "rate(kafka_messages_consumed_total{job=\"python-consumer\"}[1m])",
+          "legendFormat": "messages/sec"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Anomalies Detected (by severity)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum(rate(anomalies_detected_total{job=\"python-consumer\"}[5m])) by (severity)",
+          "legendFormat": "{{severity}}"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "JVM Heap Used (java-pinger)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "targets": [
+        {
+          "expr": "jvm_memory_used_bytes{job=\"java-pinger\", area=\"heap\"}",
+          "legendFormat": "{{id}}"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Backend API p95 Latency (python-api)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"python-api\"}[5m])) by (le, handler))",
+          "legendFormat": "{{handler}}"
+        }
+      ]
+    }
+  ]
+}

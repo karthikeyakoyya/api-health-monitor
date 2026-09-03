@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: java-pinger
+  namespace: api-health-monitor
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: java-pinger }
+  template:
+    metadata:
+      labels: { app: java-pinger }
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/actuator/prometheus"
+        prometheus.io/port: "8080"
+    spec:
+      containers:
+        - name: java-pinger
+          image: api-health-monitor/java-pinger:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - { name: SPRING_DATASOURCE_URL, value: "jdbc:postgresql://postgres:5432/api_monitor" }
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom: { secretKeyRef: { name: db-credentials, key: POSTGRES_USER } }
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom: { secretKeyRef: { name: db-credentials, key: POSTGRES_PASSWORD } }
+            - { name: SPRING_KAFKA_BOOTSTRAP_SERVERS, value: "kafka:29092" }
+          readinessProbe:
+            httpGet: { path: /actuator/health, port: 8080 }
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /actuator/health, port: 8080 }
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          resources:
+            requests: { cpu: "200m", memory: "256Mi" }
+            limits: { cpu: "500m", memory: "512Mi" }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: java-pinger
+  namespace: api-health-monitor
+spec:
+  selector: { app: java-pinger }
+  ports:
+    - port: 8080
+      targetPort: 8080

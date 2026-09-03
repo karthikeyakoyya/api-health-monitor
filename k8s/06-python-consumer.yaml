@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-consumer
+  namespace: api-health-monitor
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: python-consumer }
+  template:
+    metadata:
+      labels: { app: python-consumer }
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "8001"
+    spec:
+      containers:
+        - name: python-consumer
+          image: api-health-monitor/python-detector:latest
+          imagePullPolicy: IfNotPresent
+          command: ["python", "consumer.py"]
+          ports:
+            - containerPort: 8001
+          env:
+            - { name: DB_HOST, value: "postgres" }
+            - name: DB_NAME
+              valueFrom: { secretKeyRef: { name: db-credentials, key: POSTGRES_DB } }
+            - name: DB_USER
+              valueFrom: { secretKeyRef: { name: db-credentials, key: POSTGRES_USER } }
+            - name: DB_PASSWORD
+              valueFrom: { secretKeyRef: { name: db-credentials, key: POSTGRES_PASSWORD } }
+            - { name: KAFKA_BOOTSTRAP_SERVERS, value: "kafka:29092" }
+            - { name: METRICS_PORT, value: "8001" }
+          readinessProbe:
+            tcpSocket: { port: 8001 }
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket: { port: 8001 }
+            initialDelaySeconds: 20
+            periodSeconds: 15
+          resources:
+            requests: { cpu: "100m", memory: "128Mi" }
+            limits: { cpu: "300m", memory: "256Mi" }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: python-consumer
+  namespace: api-health-monitor
+spec:
+  selector: { app: python-consumer }
+  ports:
+    - port: 8001
+      targetPort: 8001

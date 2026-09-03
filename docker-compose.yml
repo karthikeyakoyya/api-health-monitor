@@ -1,0 +1,127 @@
+﻿version: "3.8"
+
+services:
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: api_monitor
+      POSTGRES_USER: monitor_user
+      POSTGRES_PASSWORD: monitor_pass123
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: pg_isready -U monitor_user -d api_monitor
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  java-pinger:
+    build: ./java-pinger
+    depends_on:
+      kafka:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/api_monitor
+      SPRING_DATASOURCE_USERNAME: monitor_user
+      SPRING_DATASOURCE_PASSWORD: monitor_pass123
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    ports:
+      - "8080:8080"
+
+  python-api:
+    build: ./python-detector
+    command: uvicorn api_server:app --host 0.0.0.0 --port 8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_NAME: api_monitor
+      DB_USER: monitor_user
+      DB_PASSWORD: monitor_pass123
+    ports:
+      - "8000:8000"
+
+  python-consumer:
+    build: ./python-detector
+    command: python consumer.py
+    depends_on:
+      kafka:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_NAME: api_monitor
+      DB_USER: monitor_user
+      DB_PASSWORD: monitor_pass123
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      METRICS_PORT: "8001"
+    ports:
+      - "8001:8001"
+
+  dashboard:
+    build:
+      context: ./dashboard
+      args:
+        REACT_APP_API_URL: http://localhost:8000
+    depends_on:
+      - python-api
+    ports:
+      - "3000:80"
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - java-pinger
+      - python-api
+      - python-consumer
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+
+volumes:
+  pgdata:
